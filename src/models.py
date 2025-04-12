@@ -11,18 +11,19 @@ class MultiHeadTemporalAttention(nn.Module):
 
         # ensure input_Dim is divisible by num_heads
         assert input_dim % num_heads == 0, "input dimension should be divisible by number of attention heads"
-        self.head_dim = input_dim // num_heads
+        self.head_dim = input_dim // num_heads # Divide embedding dimension across heads
 
         # create query, key, value projections for each head
         self.q_linear = nn.Linear(input_dim, input_dim)
         self.k_linear = nn.Linear(input_dim, input_dim)
         self.v_linear = nn.Linear(input_dim, input_dim)
 
-        # output projection
+        # output projection, mixing and concatenating
         self.output_linear = nn.Linear(input_dim, input_dim)
 
     def forward(self, x):
         batch_size, seq_len, input_dim = x.size()
+        # each head gets q, k, v
         # input x = [batch_size, seq_len, input_dim]
         # project into query, key, values
         q = self.q_linear(x).view(batch_size, seq_len, self.num_heads, self.head_dim)
@@ -30,27 +31,28 @@ class MultiHeadTemporalAttention(nn.Module):
         v = self.v_linear(x).view(batch_size, seq_len, self.num_heads, self.head_dim)
 
         # transpose for attention computation [batch, heads, seq_len, head_dim]
-
         q = q.transpose(1,2)
         k = k.transpose(1,2)
         v = v.transpose(1,2)
 
-        # compute attention scores, how much each token should focus on each other token (matrix of attention scores)
+        # compute attention scores,  (matrix of attention scores)
         scores = torch.matmul(q, k.transpose(-1,-2))/ (self.head_dim ** 0.5)
-        attention = F.softmax(scores, dim = -1) # softmax across heads
+        # q = [batch, heads, seq, dim], k = [batch, head, dim, seq], scores = [batch, heads, time_query, time_key], [t,t] matrice how much each token should focus on each other token
+        # original transformer paper - sqrt d can help numerical stability
+        attention = F.softmax(scores, dim = -1) # softmax across last dim (key dim) to get prob, so each row is how one time step depends to another
 
-        # apply attention to values
+        # apply attention to values, each row gets weighted sum of value vectors based on relevance
         context = torch.matmul(attention, v)
 
-        # reshape context 
+        # reshape context -> [b, h, t, d] -> [b,t,h,d] -> [b, t, input_dim]
         context = context.transpose(1,2).contiguous().view(batch_size, seq_len, input_dim)  
         # context -> [batch, seq-len, input_dim]
         # apply output projection
         output = self.output_linear(context)
 
-        # weighted sum over sequence dimension
+        # weighted sum over sequence dimension, temporal pooling, scalar score for each timestep
         weights = F.softmax(torch.sum(output, dim = -1, keepdim = True), dim = 1)
-        final_context = torch.sum(output * weights, dim  = 1)
+        final_context = torch.sum(output * weights, dim  = 1) # which token (time slice) is most important
 
         return final_context
 
