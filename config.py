@@ -2,10 +2,12 @@ import torch
 import os
 from datetime import datetime
 
-DATA_DIR = "/Users/caramelloveschicken/Library/Mobile Documents/com~apple~CloudDocs/researchprojects/alarm-call-detection/data"
-AUDIO_DIR = "/Users/caramelloveschicken/Library/Mobile Documents/com~apple~CloudDocs/researchprojects/alarm-call-detection/data/audio_files"
-SPECTROGRAM_DIR = "/Users/caramelloveschicken/Library/Mobile Documents/com~apple~CloudDocs/researchprojects/alarm-call-detection/data/spectrograms"
-METADATA_PATH = "/Users/caramelloveschicken/Library/Mobile Documents/com~apple~CloudDocs/researchprojects/alarm-call-detection/data/FS3-metadata.csv"
+DATA_DIR = "/Users/caramelloveschicken/Desktop/data"
+AUDIO_DIR = "/Users/caramelloveschicken/Desktop/data/training/audio_files"
+SPECTROGRAM_DIR = "/Users/caramelloveschicken/Desktop/data/training/spectrograms"
+METADATA_PATH = "/Users/caramelloveschicken/Desktop/data/training/results/FS3-metadata.csv"
+EVALUATEDATAPATH = "/Users/caramelloveschicken/Desktop/data/Botanical Garden/Small-BG2/Small-BG2-Results/small-bg2-fs3-results.csv"
+EVALUATEAUDIO_DIR  = "/Users/caramelloveschicken/Desktop/data/Botanical Garden/Small-BG2/Small-BG2-data"
 
 TEMPERATURE=10.0
 

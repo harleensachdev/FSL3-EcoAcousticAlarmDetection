@@ -2,6 +2,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import os
 from config import (EMBEDDING_DIM, N_WAY, N_SUPPORT, 
                    PROTO_WEIGHT, RELATION_WEIGHT, TEMPERATURE, EPISODES)
 class MultiHeadTemporalAttention(nn.Module):
